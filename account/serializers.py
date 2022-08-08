@@ -19,7 +19,7 @@ class RegisterSerializer(serializers.ModelSerializer): #회원가입 시리얼�
     username = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())], 
         required=True
-        )
+    )
     age = serializers.IntegerField(required=True)
     region = serializers.CharField(max_length=45)
     gender = serializers.IntegerField(required=True)

@@ -65,3 +65,4 @@ class LoginSerializer(serializers.Serializer):
         raise serializers.ValidationError(
             {"error":"Unable to log in with provided credentials."}
         )
+    

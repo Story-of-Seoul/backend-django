@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import datetime
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -86,13 +87,44 @@ WSGI_APPLICATION = 'story_of_seoul.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+#DATABASES = mysettings.DATABASES
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'storyofseoul_db',
+        # 'USER': 'root',
+        # 'PASSWORD': 'dudqls1659',
+        # 'HOST': 'localhost',
+        # 'PORT': '3306',
+        
+        'USER': 'yongcloud',
+        'PASSWORD': 'tjdnfdmldldirl',
+        'HOST': '15.164.163.30',
+        'PORT': '3306',
+        
     }
 }
+'''
+SITE_ID = 1
+EMAIL_BACKEND = mysettings.EMAIL['EMAIL_BACKEND']
+EMAIL_USE_TLS = mysettings.EMAIL['EMAIL_USE_TLS']
+EMAIL_PORT = mysettings.EMAIL['EMAIL_PORT']
+EMAIL_HOST = mysettings.EMAIL['EMAIL_HOST']
+EMAIL_HOST_PASSWORD = mysettings.EMAIL['EMAIL_HOST_PASSWORD']
+REDIRECT_PAGE = mysettings.EMAIL['EMAIL_PAGE']
+'''
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'testyb0210@gmail.com'
+EMAIL_HOST_PASSWORD = 'vehiqbgfrsfylktd'
+REDIRECT_PAGE = 'http://127.0.0.1:8000/account/signin/'
+# https://support.google.com/accounts/answer/6010255
+# 22/05/30 이후로 google에서 사용자 이름과 비밀번호로 로그인 요청하는 서드파티 앱 지원 안함
+# 보안 수준 낮은 앱의 액세스 허용 이제 이거로 불가능
+# kdevkr.github.io/gmail-smtp/ 참고
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

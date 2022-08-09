@@ -1,9 +1,11 @@
+import email
 from .models import User
-from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate
+from django.core.mail import EmailMessage
+from rest_framework import serializers
 from rest_framework.authtoken.models import Token #Token 모델
 from rest_framework.validators import UniqueValidator #이메일 중복 방지를 위한 검증 도구
-from django.contrib.auth import authenticate
 
 class RegisterSerializer(serializers.ModelSerializer): #회원가입 시리얼라이저
     email = serializers.EmailField(
@@ -44,6 +46,7 @@ class RegisterSerializer(serializers.ModelSerializer): #회원가입 시리얼�
             region = validated_data['region'],
             gender = validated_data['gender'],
         )
+        
         user.set_password(validated_data['password'])
         user.save()
         token = Token.objects.create(user=user)
@@ -62,3 +65,4 @@ class LoginSerializer(serializers.Serializer):
         raise serializers.ValidationError(
             {"error":"Unable to log in with provided credentials."}
         )
+    

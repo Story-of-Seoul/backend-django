@@ -54,7 +54,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     gender = models.IntegerField(
         default=0,
-        help_text=_('0:not selected, 1:male, 2:female, 3:etc')
     )
     is_staff = models.BooleanField(
         _('staff status'),
@@ -85,3 +84,4 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.email
+    

@@ -1,3 +1,4 @@
+from pickle import TRUE
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.utils import timezone
@@ -41,7 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name=_('email id'),
         max_length=45,
         unique=True,
-        help_text='EMAIL ID.'
+        help_text='EMAIL ID.',
     )
     username = models.CharField(
         max_length=10,

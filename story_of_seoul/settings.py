@@ -42,9 +42,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'account',
+    'board',
 ]
 
 AUTH_USER_MODEL = 'account.User'
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 REST_FRAMEWORK ={
     'DEFAULT_AUTHENTICATION_CLASSES': [

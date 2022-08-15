@@ -4,11 +4,11 @@ from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
 class Post(models.Model):
-    Title = models.CharField(max_length=64, verbose_name='글 제목')
-    Contents = models.TextField(verbose_name='글 내용')
-    Author = models.ForeignKey('account.User', related_name='posts', on_delete=models.CASCADE, verbose_name='작성자')
-    CreatedAt = models.DateTimeField(auto_now_add=True, verbose_name='글 작성일')
-    BoardType = models.CharField(max_length=32, verbose_name='게시판 종류')
+    title = models.CharField(max_length=64, verbose_name='글 제목')
+    contents = models.TextField(verbose_name='글 내용')
+    author = models.ForeignKey('account.User', related_name='posts', on_delete=models.CASCADE, verbose_name='작성자')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='글 작성일')
+    boardtype = models.CharField(max_length=32, verbose_name='게시판 종류')
     
     RequestDataType = models.CharField(max_length=32, verbose_name='요청데이터타입', blank=True)
     Answer = models.TextField(verbose_name='답변', blank=True)

@@ -53,8 +53,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     region = models.CharField(
         max_length=10
     )
-    gender = models.IntegerField(
-        default=0,
+    gender = models.CharField(
+        max_length=10
     )
     is_staff = models.BooleanField(
         _('staff status'),

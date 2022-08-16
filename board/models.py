@@ -1,26 +1,28 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
+from account.models import Profile
 
-class Post(models.Model):
-    title = models.CharField(max_length=64, verbose_name='글 제목')
-    contents = models.TextField(verbose_name='글 내용')
-    author = models.ForeignKey('account.User', related_name='posts', on_delete=models.CASCADE, verbose_name='작성자')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='글 작성일')
-    board_type = models.CharField(max_length=32, verbose_name='게시판 종류')
-    
-    request_data_type = models.CharField(max_length=32, verbose_name='요청데이터타입', blank=True)
-    answer = models.TextField(verbose_name='답변', blank=True)
-    processing_status = models.CharField(max_length=10, verbose_name='처리현황', blank=True)
-    
-    def __str__(self):
-        return self.Title
-    
-    class Meta:
-        verbose_name = _('post')
-        verbose_name_plural = _('posts')
-        
-        
-    
-    
+
+class Board(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='boards')
+    profile = models.ForeignKey(Profile,  on_delete=models.CASCADE)
+    title = models.CharField(max_length=64)
+    contents = models.TextField()
+    request_data_type = models.CharField(max_length=64, blank=True)
+    answer = models.TextField(blank=True)
+    processing_status = models.CharField(max_length=12, blank=True)
+    board_type = models.CharField(max_length=12)
+    likes = models.ManyToManyField(User, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Comment(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    board = models.ForeignKey(Board, related_name='comments', on_delete=models.CASCADE)
+    text = models.TextField()
+
+

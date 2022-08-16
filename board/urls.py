@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import BoardListView
+from rest_framework import routers
+from .views import NoticeViewSet
 
 urlpatterns = [
-    path('', BoardListView.as_view()),
+    path('', NoticeViewSet.as_view()),
 ]

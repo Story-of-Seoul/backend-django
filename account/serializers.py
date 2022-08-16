@@ -24,7 +24,7 @@ class RegisterSerializer(serializers.ModelSerializer): #회원가입 시리얼�
     )
     age = serializers.IntegerField(required=True)
     region = serializers.CharField(max_length=45)
-    gender = serializers.IntegerField(required=True)
+    gender = serializers.CharField(required=True)
     
     
     class Meta:
@@ -65,4 +65,3 @@ class LoginSerializer(serializers.Serializer):
         raise serializers.ValidationError(
             {"error":"Unable to log in with provided credentials."}
         )
-    

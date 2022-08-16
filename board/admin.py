@@ -7,7 +7,9 @@ class PostAdmin(admin.ModelAdmin):
     list_display = (
         'title',
         'author',
-        'created_at'
-        'boardtype'
+        'created_at',
+        'board_type',
     )
-    search_fields = ('title', 'content', 'author__user_')
+    search_fields = ('title', 'content', 'author__user_username', 'board_type',)
+    
+admin.site.register(Post, PostAdmin)

@@ -10,6 +10,7 @@ DATABASES = {
         # 'PORT': '3306',
         
         'USER': 'yongcloud',
+        'NAME': 'storyofseoul_db',
         'PASSWORD': 'tjdnfdmldldirl',
         'HOST': '15.164.163.30',
         'PORT': '3306',

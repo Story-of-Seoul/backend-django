@@ -1,7 +1,14 @@
 from django.urls import path
 from rest_framework import routers
-from .views import NoticeViewSet
 
-urlpatterns = [
-    path('', NoticeViewSet.as_view()),
+from board.views import BoardViewSet, like, CommentViewSet
+
+router = routers.SimpleRouter()
+
+router.register('board', BoardViewSet)
+router.register('comments', CommentViewSet)
+
+urlpatterns = router.urls + [
+    path('like/<int:pk>', like, name='like'),
+
 ]

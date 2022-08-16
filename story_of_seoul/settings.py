@@ -44,19 +44,30 @@ INSTALLED_APPS = [
     'account',
     'board',
     'news',
+    'django_filters',
+    'corsheaders',
 ]
 
-AUTH_USER_MODEL = 'account.User'
+
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 REST_FRAMEWORK ={
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    'DEFAULT_PAGINATION_CLASS':
+    'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE':
+    5,
+
 }
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,6 +78,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'story_of_seoul.urls'
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 
 TEMPLATES = [
     {

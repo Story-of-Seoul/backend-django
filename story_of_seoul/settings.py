@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'board',
     'news',
     'django_filters',
+    'analysis',
     'corsheaders',
 ]
 

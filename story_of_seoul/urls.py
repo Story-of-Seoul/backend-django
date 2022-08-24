@@ -22,5 +22,5 @@ urlpatterns = [
     path('account/', include('account.urls')),
     path('', include('board.urls')),
     path('news/', include('news.urls')),
-
+    path('analysis/', include('analysis.urls'))
 ]

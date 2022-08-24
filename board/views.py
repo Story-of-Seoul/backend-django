@@ -1,14 +1,4 @@
-from urllib import response
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
-from django.core.serializers import serialize
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from account.models import User
-from .models import Post
-from .serializers import NoticeSerializer, NoticeCreateSerializer
-import json
 
 # Create your views here.
 from django_filters.rest_framework import DjangoFilterBackend

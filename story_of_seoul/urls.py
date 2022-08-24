@@ -1,3 +1,4 @@
+
 """story_of_seoul URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -21,5 +22,5 @@ urlpatterns = [
     path('account/', include('account.urls')),
     path('', include('board.urls')),
     path('news/', include('news.urls')),
-
+    path('analysis/', include('analysis.urls'))
 ]

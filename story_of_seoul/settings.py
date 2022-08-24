@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'news',
     'django_filters',
     'corsheaders',
+    'analysis',
 ]
 
 
@@ -116,7 +117,7 @@ DATABASES = {
         
         'USER': 'yongcloud',
         'PASSWORD': 'tjdnfdmldldirl',
-        'HOST': '15.164.163.30',
+        'HOST': '13.125.205.105',
         'PORT': '3306',
         
     }

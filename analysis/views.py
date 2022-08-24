@@ -1,4 +1,4 @@
-import time
+import time, datetime
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
@@ -129,17 +129,83 @@ class GetDisableCallTaxi(APIView):
         DisableCallTaxi['callstartend'] = {'startpos':start, 'endpos':end}
         
         
-        set_receipt = {"0~5":0, "6~10":0, "11~15":0, "16~20":0, "21~25":0, "26~30":0, "31~35":0, "36~40":0, "이상":0}
-        ride_set = {"0~5":0, "6~10":0, "11~15":0, "16~20":0, "21~25":0, "26~30":0, "31~35":0, "36~40":0, "이상":0}
-        ride_receipt = {"0~5":0, "6~10":0, "11~15":0, "16~20":0, "21~25":0, "26~30":0, "31~35":0, "36~40":0, "이상":0}
+        receipt_set = {"0~5":0, "6~10":0, "11~15":0, "16~20":0, "21~25":0, "26~30":0, "31~35":0, "36~40":0, "이상":0}
+        set_ride = {"0~5":0, "6~10":0, "11~15":0, "16~20":0, "21~25":0, "26~30":0, "31~35":0, "36~40":0, "이상":0}
+        receipt_ride = {"0~5":0, "6~10":0, "11~15":0, "16~20":0, "21~25":0, "26~30":0, "31~35":0, "36~40":0, "이상":0}
         
         dataset = calltaxi_time_pos.objects.values('receipttime', 'settime', 'ridetime')
-        print(dataset)
-        print(len(dataset))
+
+        # print(type(dataset[0]['receipttime'][14:]))
+        # print(datetime.datetime.strptime(dataset[0]['receipttime'][14:], "%Y-%m-%d %s %H:%M:%S"))
+        datalen = len(dataset)
+        
+        for i in range(datalen):
+            receipt_set_tmp = datetime.datetime.strptime(dataset[i]['settime'][14:], "%H:%M:%S") - datetime.datetime.strptime(dataset[i]['receipttime'][14:], "%H:%M:%S")
+            if 0 < round(receipt_set_tmp.seconds/60)%720 < 6:
+                receipt_set['0~5'] += 1
+            elif 5 < round(receipt_set_tmp.seconds/60)%720 < 11:
+                receipt_set['6~10'] += 1
+            elif 10 < round(receipt_set_tmp.seconds/60)%720 < 16:
+                receipt_set['11~15'] += 1
+            elif 15 < round(receipt_set_tmp.seconds/60)%720 < 21:
+                receipt_set['16~20'] += 1
+            elif 20 < round(receipt_set_tmp.seconds/60)%720 < 26:
+                receipt_set['21~25'] += 1
+            elif 25 < round(receipt_set_tmp.seconds/60)%720 < 31:
+                receipt_set['26~30'] += 1
+            elif 30 < round(receipt_set_tmp.seconds/60)%720 < 36:
+                receipt_set['31~35'] += 1
+            elif 35 < round(receipt_set_tmp.seconds/60)%720 < 41:
+                receipt_set['36~40'] += 1
+            else:
+                receipt_set['이상'] += 1
+                
+            set_ride_tmp = datetime.datetime.strptime(dataset[i]['ridetime'][14:], "%H:%M:%S") - datetime.datetime.strptime(dataset[i]['settime'][14:], "%H:%M:%S")
+            if 0 < round(set_ride_tmp.seconds/60)%720 < 6:
+                set_ride['0~5'] += 1
+            elif 5 < round(set_ride_tmp.seconds/60)%720 < 11:
+                set_ride['6~10'] += 1
+            elif 10 < round(set_ride_tmp.seconds/60)%720 < 16:
+                set_ride['11~15'] += 1
+            elif 15 < round(set_ride_tmp.seconds/60)%720 < 21:
+                set_ride['16~20'] += 1
+            elif 20 < round(set_ride_tmp.seconds/60)%720 < 26:
+                set_ride['21~25'] += 1
+            elif 25 < round(set_ride_tmp.seconds/60)%720 < 31:
+                set_ride['26~30'] += 1
+            elif 30 < round(set_ride_tmp.seconds/60)%720 < 36:
+                set_ride['31~35'] += 1
+            elif 35 < round(set_ride_tmp.seconds/60)%720 < 41:
+                set_ride['36~40'] += 1
+            else:
+                set_ride['이상'] += 1
+                
+            receipt_ride_tmp = datetime.datetime.strptime(dataset[i]['ridetime'][14:], "%H:%M:%S") - datetime.datetime.strptime(dataset[i]['receipttime'][14:], "%H:%M:%S")
+            if 0 < round(receipt_ride_tmp.seconds/60)%720 < 6:
+                receipt_ride['0~5'] += 1
+            elif 5 < round(receipt_ride_tmp.seconds/60)%720 < 11:
+                receipt_ride['6~10'] += 1
+            elif 10 < round(receipt_ride_tmp.seconds/60)%720 < 16:
+                receipt_ride['11~15'] += 1
+            elif 15 < round(receipt_ride_tmp.seconds/60)%720 < 21:
+                receipt_ride['16~20'] += 1
+            elif 20 < round(receipt_ride_tmp.seconds/60)%720 < 26:
+                receipt_ride['21~25'] += 1
+            elif 25 < round(receipt_ride_tmp.seconds/60)%720 < 31:
+                receipt_ride['26~30'] += 1
+            elif 30 < round(receipt_ride_tmp.seconds/60)%720 < 36:
+                receipt_ride['31~35'] += 1
+            elif 35 < round(receipt_ride_tmp.seconds/60)%720 < 41:
+                receipt_ride['36~40'] += 1
+            else:
+                receipt_ride['이상'] += 1
+            
+        print(receipt_set, set_ride, receipt_ride)           
+        DisableCallTaxi['calltime'] = {'receipt_set':receipt_set, 'set_ride':set_ride, 'receipt_ride':receipt_ride}
     
             
-        return Response(status=status.HTTP_200_OK)
-        # return Response(DisableCallTaxi, status=status.HTTP_200_OK)
+        # return Response(status=status.HTTP_200_OK)
+        return Response(DisableCallTaxi, status=status.HTTP_200_OK)
         
         
 class GetEnvironment(APIView):

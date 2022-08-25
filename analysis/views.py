@@ -1,4 +1,5 @@
 import time, datetime
+from unicodedata import category
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
@@ -111,7 +112,7 @@ class GetDisableCallTaxi(APIView):
                 tmp2 = tmp2 - 12
 
             time[str(tmp2)] = time[str(tmp2)] + 1
-        DisableCallTaxi['callfrequency'] = {'day':day,'week':week,'time':time}
+        DisableCallTaxi['callfrequency'] = {'day':day.values(),'week':week.values(),'time':time.values()}
         
         
         
@@ -201,7 +202,7 @@ class GetDisableCallTaxi(APIView):
                 receipt_ride['이상'] += 1
             
         print(receipt_set, set_ride, receipt_ride)           
-        DisableCallTaxi['calltime'] = {'receipt_set':receipt_set, 'set_ride':set_ride, 'receipt_ride':receipt_ride}
+        DisableCallTaxi['calltime'] = {'receipt_set':receipt_set.values(), 'set_ride':set_ride.values(), 'receipt_ride':receipt_ride.values()}
     
             
         # return Response(status=status.HTTP_200_OK)
@@ -213,133 +214,124 @@ class GetEnvironment(APIView):
     def get(self, request):
         Environment = {}
         
-        Temperature_countries = ['종로', '중구', '용산', '성동', '광진', '동대문',
-                    '중랑', '성북', '강북', '도봉', '노원', '은평',
-                    '서대문', '마포', '양천', '강서', '구로', '금천',
-                    '영등포', '동작', '관악', '서초', '강남', '송파', '강동']
-        
-        TemperatureMonth = {}
-        TemperatureYear = {}
-        Temperature_m_field = [1, 2, 3, 4, 5, 6 ,7, 8, 9, 10, 11, 12]
-        Temperature_y_field = [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
-        
-        
-        for m in Temperature_m_field:
-            area = {}
-            for country in Temperature_countries:
-                tmp = seoul_temperature.objects.filter(date__month = m, area = country).aggregate(Avg('temperature'))['temperature__avg']
-                if tmp is not None:
-                    area[country] = round(float(tmp), 2)
-                else:
-                    area[country] = tmp
-            TemperatureMonth[str(m)] = area
-            
-        for y in Temperature_y_field:
-            area = {}
-            for country in Temperature_countries:
-                tmp = seoul_temperature.objects.filter(date__year = y, area = country).aggregate(Avg('temperature'))['temperature__avg']
-                if tmp is not None:
-                    area[country] = round(float(tmp), 2)
-                else:
-                    area[country] = tmp
-            TemperatureYear[str(y)] = area
-        Environment['Temperature'] = {'연도':TemperatureYear, '월':TemperatureMonth}
-        
-        
-        Dust_countries = ['종로구', '중구', '용산구', '성동구', '광진구', '동대문구',
+        countries = ['종로구', '중구', '용산구', '성동구', '광진구', '동대문구',
                     '중랑구', '성북구', '강북구', '도봉구', '노원구', '은평구',
                     '서대문구', '마포구', '양천구', '강서구', '구로구', '금천구',
                     '영등포구', '동작구', '관악구', '서초구', '강남구', '송파구', '강동구']
         
-        Dust_month = {}
-        Dust_year = {}
-        Dust_m_field = [1, 2, 3, 4, 5, 6 ,7, 8, 9, 10, 11, 12]
+        TemperatureMonth = {}
+        TemperatureYear = {}
+        Dust_month_FineDust = {}
+        Dust_month_UltraFineDust = {}
+        Dust_year_FineDust = {}
+        Dust_year_UltraFineDust = {}
+        m_field = [1, 2, 3, 4, 5, 6 ,7, 8, 9, 10, 11, 12]
+        Temperature_y_field = [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
         Dust_y_field = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
         
-        for m in Dust_m_field:
-            area = {}
-            for country in Dust_countries:
-                TmpList = []
+        for country in countries:
+            TmpList = []
+            for y in Temperature_y_field:
+                tmp = seoul_temperature.objects.filter(date__year = y, area = country).aggregate(Avg('temperature'))['temperature__avg']
+                if tmp is not None:
+                    TmpList.append(round(float(tmp),2))
+                else:
+                    TmpList.append(None)
+            TemperatureYear[country] = TmpList       
+
+                
+        for country in countries:
+            TmpList = []
+            TmpList2 = []
+            for y in Dust_y_field:
+                tmp = round(seoul_dust.objects.filter(date__year = y, area = country).aggregate(Avg('fine_dust'))['fine_dust__avg'],2)
+                TmpList.append(tmp)
+                tmp = round(seoul_dust.objects.filter(date__year = y, area = country).aggregate(Avg('ultra_fine_dust'))['ultra_fine_dust__avg'],2)
+                TmpList2.append(tmp)
+            Dust_year_FineDust[country] = TmpList
+            Dust_year_UltraFineDust[country] = TmpList2
+            
+            TmpList = []
+            TmpList2 = []
+            TmpList3 = []
+            for m in m_field:
                 tmp = round(seoul_dust.objects.filter(date__month = m, area = country).aggregate(Avg('fine_dust'))['fine_dust__avg'],2)
                 TmpList.append(tmp)
-                
                 tmp = round(seoul_dust.objects.filter(date__month = m, area = country).aggregate(Avg('ultra_fine_dust'))['ultra_fine_dust__avg'],2)
-                TmpList.append(tmp)
-                
-                area[country] = TmpList
-            Dust_month[str(m)] = area
-            
-        for y in Dust_y_field:
-            area = {}
-            for country in Dust_countries:
-                tmp = seoul_dust.objects.filter(date__year = y, area = country).filter(fine_dust__gt=0).aggregate(Avg('fine_dust'))['fine_dust__avg']
-                TmpList = []
+                TmpList2.append(tmp)
+                tmp = seoul_temperature.objects.filter(date__month = m, area = country).aggregate(Avg('temperature'))['temperature__avg']
                 if tmp is not None:
-                    TmpList.append(round(float(tmp), 2))
+                    TmpList3.append(round(float(tmp),2))
                 else:
-                    TmpList.append(0.0)
-                
-                tmp = seoul_dust.objects.filter(date__year = y, area = country).aggregate(Avg('ultra_fine_dust'))['ultra_fine_dust__avg']
-                if tmp is not None:
-                    TmpList.append(round(float(tmp), 2))
-                else:
-                    TmpList.append(0.0)
-                area[country] = TmpList
-            Dust_year[str(y)] = area
-        Environment['Dust'] = {'연도':Dust_year, '월':Dust_month}
+                    TmpList3.append(None)
+            Dust_month_FineDust[country] = TmpList
+            Dust_month_UltraFineDust[country] = TmpList2    
+            TemperatureMonth[country] = TmpList3                
+        
+        
+        Environment['Temperature'] = {'연도':TemperatureYear, '월':TemperatureMonth}
+        Environment['Dust'] = {'연도':{'FineDust':Dust_year_FineDust, 'UltraFineDust':Dust_month_FineDust},
+                               '월':{'FineDust':Dust_month_FineDust, 'UltraFineDust':Dust_month_UltraFineDust}}
         
         return Response(Environment, status=status.HTTP_200_OK) 
  
 class GetAccident(APIView):
     
     def get(self, request):
-        Accident = {}
         
         year = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021]
-        AccidentCategory = ["스쿨존내어린이사고", "어린이보행사고", "고령운전사고", "고령보행사고"]
+        AccidentCategory = ["전체", "스쿨존내어린이사고", "어린이보행사고", "고령운전사고", "고령보행사고"]
+        AccidentCategory2 = ["스쿨존내어린이사고", "어린이보행사고", "고령운전사고", "고령보행사고"]
+        AccidentCategory3 = ["과속", "중앙선침범", "신호위반", "안전거리미확보", "난폭운전", "보행자보호의무위반"]
+        AccidentCategory4 = ["사건발생수", "사망자수", "부상자수"]
         countries = ['종로구', '중구', '용산구', '성동구', '광진구', '동대문구',
                     '중랑구', '성북구', '강북구', '도봉구', '노원구', '은평구',
                     '서대문구', '마포구', '양천구', '강서구', '구로구', '금천구',
                     '영등포구', '동작구', '관악구', '서초구', '강남구', '송파구', '강동구']
         occurrence = {}
+        occurrenceEdit = {}
         ChangeRate = {}
+        ChangeRateEdit = {}
         cause = {}
+        causeEdit = {}
         AccidentMap = {}
+        AccidentMapEdit = {}
         DeadRate = {}
+        DeadRateEdit = {}
         
         ChangeRate[2010] = {"스쿨존내어린이사고":0, "어린이보행사고":0, "고령운전사고":0, "고령보행사고":0}
         for y in year:
-            occurrence_tmp = {}
-            occurrence_tmp['교통사고'] = CarAcc.objects.filter(year = y, acc_cl_name = '전체').aggregate(Sum('acc_cnt'))['acc_cnt__sum']
+            occurrence_tmp = {} #occurence
+            # occurrence_tmp['교통사고'] = CarAcc.objects.filter(year = y, acc_cl_name = '전체').aggregate(Sum('acc_cnt'))['acc_cnt__sum']
             for category in AccidentCategory:
                 occurrence_tmp[category] = CarAcc.objects.filter(year = y, acc_cl_name = category).aggregate(Sum('acc_cnt'))['acc_cnt__sum']
             occurrence[y] = occurrence_tmp
+            
             ChangeRate_tmp = {}
             if y == 2010:
                 continue
-            for category in AccidentCategory:
+            for category in AccidentCategory: #changerate
                 ChangeRate_tmp[category] = round(occurrence[y][category]/occurrence[y-1][category],2)
-            ChangeRate[y] = ChangeRate_tmp
-            
+            ChangeRate[y] = ChangeRate_tmp 
         
-        for y in year:
+        for y in year: #cause
             cause_tmp = {}
             drunk_tmp = {}
             data = CarAcc.objects.filter(year=y, place_code='서울시', acc_cl_name='전체').values()
             cause_tmp['과속'] = round(data[0]['speeding_cnt'] / data[0]['acc_cnt'],3)
-            cause_tmp['중앙성침범'] = round(data[0]['center_line_cnt'] / data[0]['acc_cnt'],3)
+            cause_tmp['중앙선침범'] = round(data[0]['center_line_cnt'] / data[0]['acc_cnt'],3)
             cause_tmp['신호위반'] = round(data[0]['sig_violation_cnt'] / data[0]['acc_cnt'],3)
             cause_tmp['안전거리미확보'] = round(data[0]['unsafe_distance_cnt'] / data[0]['acc_cnt'],3)
             cause_tmp['난폭운전'] = round(data[0]['unsafe_driving_cnt'] / data[0]['acc_cnt'],3)
             cause_tmp['보행자보호의무위반'] = round(data[0]['violation_ped_prt_cnt'] / data[0]['acc_cnt'],3)
             cause[y] = cause_tmp
             
-            data2 = DrunkDriving.objects.filter(year=y, county='소계').values()
+            
+            data2 = DrunkDriving.objects.filter(year=y, county='소계').values() #drunk
             drunk_tmp['사건발생수'] = round(data2[0]['acc_cnt'] / data[0]['acc_cnt'],3)
             drunk_tmp['사망자수'] = round(data2[0]['deaths_cnt'] / data[0]['deaths_cnt'],3)
             drunk_tmp['부상자수'] = round(data2[0]['injuries_cnt'] / data[0]['injuries_cnt'],3)
             DeadRate[y] = drunk_tmp
-            
             
         for country in countries:
             AccidentMap_tmp = {}
@@ -351,9 +343,34 @@ class GetAccident(APIView):
         
         
         
+        for category in AccidentCategory:
+            tmp = {}
+            for y in year:
+                tmp[y] = occurrence[y][category]
+            occurrenceEdit[category] = tmp.values()
+            
+        for category in AccidentCategory2:
+            tmp = {}
+            for y in year:
+                tmp[y] = ChangeRate[y][category]
+            ChangeRateEdit[category] = tmp.values()
+            
+        for category in AccidentCategory3:
+            tmp = {}
+            for y in year:
+                tmp[y] = cause[y][category]
+            causeEdit[category] = tmp.values()
+            
+        for category in AccidentCategory4:
+            tmp = {}
+            for y in year:
+                tmp[y] = DeadRate[y][category]
+            DeadRateEdit[category] = tmp.values()
         
-        return Response({'occurrence':occurrence,
-                            'ChangeRate':ChangeRate,
-                            'cause':cause,
+        
+        
+        return Response({'occurrence':occurrenceEdit,
+                            'ChangeRate':ChangeRateEdit,
+                            'cause':causeEdit,
                             'AccidentPlace':AccidentMap,
-                            'DrunkRate':DeadRate}, status=status.HTTP_200_OK)
+                            'DrunkRate':DeadRateEdit}, status=status.HTTP_200_OK)

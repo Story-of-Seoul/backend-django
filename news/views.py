@@ -3,6 +3,7 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from news.models import NewsPolicy
 
 import urllib.request
 client_id = 'mrceuxFaYpPo8uVTtmIu'
@@ -35,4 +36,19 @@ class NewsView(APIView):
             print("Error Code: " + rescode)
         
 
+
+class GetNewsPolicyTotal(APIView):
     
+    def get(self, request):
+        RequestType = request.Get.get('type', None)
+        data = {'news':0, 'policy':0}
+        
+        data['news'] = NewsPolicy.objects.filter(category = 'news', type = RequestType).count()
+        data['policy'] = NewsPolicy.objects.filter(category = 'policy', type = RequestType).count()
+        
+
+
+class GetNewsPolicy(APIView):
+    
+    def get(self, request):
+        pass

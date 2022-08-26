@@ -1,11 +1,12 @@
 from django.urls import path
-from .views import GetSafe, GetDisableCallTaxi, GetEnvironment, GetAccident
+from .views import GetSafe, GetDisableCallTaxi, GetEnvironment, GetAccident, Test
 
 urlpatterns = [
     path('safe/', GetSafe.as_view()),
     path('disablecalltaxi/', GetDisableCallTaxi.as_view()),
     path('environment/', GetEnvironment.as_view()),
     path('accident/', GetAccident.as_view()),
+    path('test/',Test.as_view()),
     # path('earthquake/', GetEarthquakeView.as_view()),
     # path('awareness/', GetAwarenessView.as_view()),
     # path('building/', GetBuildingResistance.as_view()),

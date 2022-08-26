@@ -41,9 +41,6 @@ class CarAcc(models.Model):
     unsafe_driving_cnt = models.IntegerField(blank=True)
     violation_ped_prt_cnt = models.IntegerField(blank=True)
     
-    # class Meta:
-    #     managed = True
-    #     db_table = 'analysis_caracc'
 
 class awareness(models.Model):
     category = models.CharField(max_length=50)
@@ -130,3 +127,13 @@ class test_time_pos(models.Model):
     ridetime = models.TextField()
     startpos = models.CharField(max_length=10)
     endpos = models.CharField(max_length=10)
+    
+class calltaxi_iot_data(models.Model):
+    car_num = models.TextField()
+    on_time = models.DateField()
+    off_time = models.DateField()
+    safe_rate = models.IntegerField()
+    acceleration = models.IntegerField()
+    deceleration = models.IntegerField()
+    speeding = models.IntegerField()
+    ride_time = models.IntegerField()

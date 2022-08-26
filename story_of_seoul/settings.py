@@ -117,7 +117,7 @@ DATABASES = {
         
         'USER': 'yongcloud',
         'PASSWORD': 'tjdnfdmldldirl',
-        'HOST': '13.125.205.105',
+        'HOST': '3.39.230.15',
         'PORT': '3306',
         
     }

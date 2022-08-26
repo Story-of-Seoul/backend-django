@@ -1,5 +1,4 @@
-import time, datetime, requests
-from unicodedata import category
+import time, datetime, requests, json, csv, pandas
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
@@ -7,9 +6,26 @@ from rest_framework.response import Response
 from django.db.models import Max, Sum, Avg, Count
 
 from analysis.serializer import EarthquakeSerializer, EarthquakeResistanceSerializer, ShelterSerializer, AwarenessSerializer, PopulationSerializer, CallTaxiAVGSerializer, CallTaxiTimePosSerializer,SeoulTemperatureSerializer, SeoulDustSerializer
-from analysis.models import earthquake, earthquake_resistance, awareness, shelter, population, calltaxi_avg, calltaxi_time_pos, seoul_temperature, seoul_dust, test_time_pos, CarAcc, DrunkDriving, Oldmanacc
+from analysis.models import earthquake, earthquake_resistance, awareness, shelter, population, calltaxi_avg, calltaxi_time_pos, seoul_temperature, seoul_dust, test_time_pos, CarAcc, DrunkDriving, Oldmanacc, calltaxi_iot_data
 # Create your views here.
 
+
+class Test(APIView):
+    def get(self, request):
+        for k in range(221,229):
+            date = k
+            url = requests.get('http://api.seoulhackathon.kr/inquiry/U2VvdWxIYWNrYXRob24yMDIy/20/1?inqDt=20210'+str(date))
+            data = json.loads(url.text)
+            tmplist = []
+            for i in range(0, len(data['result_data'])):
+                tmp = {'car_num': data['result_data'][i]['column2'], 'on_time':data['result_data'][i]['column5'],
+                        'off_time':data['result_data'][i]['column7'], 'safe_rate':data['result_data'][i]['column9'], 'acceleration' : data['result_data'][i]['column10'],
+                        'deceleration':data['result_data'][i]['column11'], 'speeding':data['result_data'][i]['column12'], 'ride_time':data['result_data'][i] ['column14']}
+                tmplist.append(tmp)
+            df = pandas.json_normalize(tmplist)
+            df.to_csv("csv\iot_calltaxi0"+str(date)+'.csv', index=False, encoding="utf-8-sig")
+        
+        return Response(status=status.HTTP_200_OK)
         
 class GetSafe(APIView):
     
@@ -83,6 +99,7 @@ class GetDisableCallTaxi(APIView):
         week = {"Mon":0, "Tue":0, "Wed":0, "Thu":0, "Fri":0, "Sat":0, "Sun":0}
         time = {"0":0, "1":0, "2":0, "3":0, "4":0, "5":0, "6":0, "7":0, "8":0, "9":0, "10":0, "11":0, "12":0, 
                 "13":0, "14":0, "15":0, "16":0, "17":0, "18":0, "19":0, "20":0, "21":0, "22":0, "23":0}
+
         dataset = calltaxi_time_pos.objects.values('receipttime')
         
         for data in dataset:
@@ -139,9 +156,6 @@ class GetDisableCallTaxi(APIView):
         receipt_ride = {"0~5":0, "6~10":0, "11~15":0, "16~20":0, "21~25":0, "26~30":0, "31~35":0, "36~40":0, "이상":0}
         
         dataset = calltaxi_time_pos.objects.values('receipttime', 'settime', 'ridetime')
-
-        # print(type(dataset[0]['receipttime'][14:]))
-        # print(datetime.datetime.strptime(dataset[0]['receipttime'][14:], "%Y-%m-%d %s %H:%M:%S"))
         datalen = len(dataset)
         
         for i in range(datalen):
@@ -207,8 +221,25 @@ class GetDisableCallTaxi(APIView):
             
         print(receipt_set, set_ride, receipt_ride)           
         DisableCallTaxi['calltime'] = {'receipt_set':receipt_set.values(), 'set_ride':set_ride.values(), 'receipt_ride':receipt_ride.values()}
-    
+
+        calltaxi_iot = {}
+        acceleration = []
+        deceleration = []
+        safe_rate = []
+        for m in range(1,13):
+            tmp = calltaxi_iot_data.objects.filter(on_time__month = m).aggregate(Sum('acceleration'))['acceleration__sum']
+            acceleration.append(tmp)
+            tmp = calltaxi_iot_data.objects.filter(on_time__month = m).aggregate(Sum('deceleration'))['deceleration__sum']
+            deceleration.append(tmp)
+            tmp = round(calltaxi_iot_data.objects.filter(on_time__month = m, safe_rate__gt = 0).aggregate(Avg('safe_rate'))['safe_rate__avg'],2)
+            safe_rate.append(tmp)
+        calltaxi_iot['acceleration'] = acceleration
+        calltaxi_iot['deceleration'] = deceleration
+        calltaxi_iot['safe_rate'] = safe_rate
+        DisableCallTaxi['calltaxi_iot'] = calltaxi_iot
             
+            
+        
         # return Response(status=status.HTTP_200_OK)
         return Response(DisableCallTaxi, status=status.HTTP_200_OK)
         
@@ -282,56 +313,6 @@ class GetEnvironment(APIView):
         Dust = {'2009/2021미세먼지' : FineDust_09_21, '2014/2021초미세먼지' : UltraFineDust_14_21, '미세먼지':FineDust, '초미세먼지':UltraFineDust}
         return Response({'Dust':Dust, 'Temperature':Temperature}, status=status.HTTP_200_OK)
             
-            
-            
-        # for country in countries:
-        #     TmpList = []
-        #     for y in Temperature_y_field:
-        #         tmp = seoul_temperature.objects.filter(date__year = y, area = country).aggregate(Avg('temperature'))['temperature__avg']
-        #         TmpList.append(round(tmp,2))
-        #     TemperatureYear[country] = TmpList       
-
-                
-        # for country in countries:
-        #     TmpList = []
-        #     TmpList2 = []
-        #     TmpList3 = []
-        #     dataset1 = seoul_temperature.objects.filter(area = country)
-        #     dataset2 = seoul_dust.objects.filter(area = country)
-        #     for y in Dust_y_field:
-        #         temperature_dataset = dataset1.filter(date__year = y)
-        #         dust_dataset = dataset2.filter(date__year = y)
-        #         tmp = round(dust_dataset.aggregate(Avg('fine_dust'))['fine_dust__avg'],2)
-        #         TmpList.append(tmp)
-        #         tmp = round(dust_dataset.aggregate(Avg('ultra_fine_dust'))['ultra_fine_dust__avg'],2)
-        #         TmpList2.append(tmp)
-        #         tmp = temperature_dataset.aggregate(Avg('temperature'))['temperature__avg']
-        #         TmpList3.append(round(tmp,2))
-        #     Dust_year_FineDust[country] = TmpList
-        #     Dust_year_UltraFineDust[country] = TmpList2
-        #     TemperatureYear[country] = TmpList3[10:]
-            
-        #     TmpList = []
-        #     TmpList2 = []
-        #     TmpList3 = []
-        #     for m in m_field:
-        #         temperature_dataset = dataset1.filter(date__month = m)
-        #         dust_dataset = dataset2.filter(date__month = m)
-        #         tmp = round(dust_dataset.aggregate(Avg('fine_dust'))['fine_dust__avg'],2)
-        #         TmpList.append(tmp)
-        #         tmp = round(dust_dataset.aggregate(Avg('ultra_fine_dust'))['ultra_fine_dust__avg'],2)
-        #         TmpList2.append(tmp)
-        #         tmp = temperature_dataset.aggregate(Avg('temperature'))['temperature__avg']
-        #         TmpList3.append(round(tmp,2))
-        #     Dust_month_FineDust[country] = TmpList
-        #     Dust_month_UltraFineDust[country] = TmpList2    
-        #     TemperatureMonth[country] = TmpList3                
-        
-        # Environment['Temperature'] = {'연도':TemperatureYear, '월':TemperatureMonth}
-        # Environment['Dust'] = {'연도':{'FineDust':Dust_year_FineDust, 'UltraFineDust':Dust_month_FineDust},
-        #                        '월':{'FineDust':Dust_month_FineDust, 'UltraFineDust':Dust_month_UltraFineDust}}
-        
-        return Response(Environment, status=status.HTTP_200_OK) 
  
 class GetAccident(APIView):
     

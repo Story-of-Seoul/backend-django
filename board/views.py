@@ -18,7 +18,7 @@ class BoardViewSet(viewsets.ModelViewSet):
     queryset = Board.objects.all()
     permission_classes = [CustomReadOnly]
     filter_backends = [DjangoFilterBackend]
-    filterSet_fields = ['boardType']
+    filterset_fields = ['board_type']
 
     def get_serializer_class(self):
         if self.action == 'list' or 'retrieve':

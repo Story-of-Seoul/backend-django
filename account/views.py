@@ -69,9 +69,10 @@ class MyPageView(APIView):
     def get(self, request):
         profile = Profile.objects.get(user=self.request.user)
         email = request.user.email
+        id = profile.user_id
         nickname = profile.nickname
         gender = profile.gender
         region = profile.region
         
         
-        return Response({'email':email, 'nickname':nickname, 'gender':gender, 'region':region}, status=status.HTTP_200_OK)
+        return Response({'id': id, 'email':email, 'nickname':nickname, 'gender':gender, 'region':region}, status=status.HTTP_200_OK)

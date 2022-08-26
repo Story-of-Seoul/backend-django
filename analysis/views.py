@@ -12,18 +12,18 @@ from analysis.models import earthquake, earthquake_resistance, awareness, shelte
 
 class Test(APIView):
     def get(self, request):
-        for k in range(221,229):
-            date = k
-            url = requests.get('http://api.seoulhackathon.kr/inquiry/U2VvdWxIYWNrYXRob24yMDIy/20/1?inqDt=20210'+str(date))
-            data = json.loads(url.text)
-            tmplist = []
-            for i in range(0, len(data['result_data'])):
-                tmp = {'car_num': data['result_data'][i]['column2'], 'on_time':data['result_data'][i]['column5'],
-                        'off_time':data['result_data'][i]['column7'], 'safe_rate':data['result_data'][i]['column9'], 'acceleration' : data['result_data'][i]['column10'],
-                        'deceleration':data['result_data'][i]['column11'], 'speeding':data['result_data'][i]['column12'], 'ride_time':data['result_data'][i] ['column14']}
-                tmplist.append(tmp)
-            df = pandas.json_normalize(tmplist)
-            df.to_csv("csv\iot_calltaxi0"+str(date)+'.csv', index=False, encoding="utf-8-sig")
+        # for k in range(221,229):
+        #     date = k
+        #     url = requests.get('http://api.seoulhackathon.kr/inquiry/U2VvdWxIYWNrYXRob24yMDIy/20/1?inqDt=20210'+str(date))
+        #     data = json.loads(url.text)
+        #     tmplist = []
+        #     for i in range(0, len(data['result_data'])):
+        #         tmp = {'car_num': data['result_data'][i]['column2'], 'on_time':data['result_data'][i]['column5'],
+        #                 'off_time':data['result_data'][i]['column7'], 'safe_rate':data['result_data'][i]['column9'], 'acceleration' : data['result_data'][i]['column10'],
+        #                 'deceleration':data['result_data'][i]['column11'], 'speeding':data['result_data'][i]['column12'], 'ride_time':data['result_data'][i] ['column14']}
+        #         tmplist.append(tmp)
+        #     df = pandas.json_normalize(tmplist)
+        #     df.to_csv("csv\iot_calltaxi0"+str(date)+'.csv', index=False, encoding="utf-8-sig")
         
         return Response(status=status.HTTP_200_OK)
         
@@ -72,10 +72,6 @@ class GetSafe(APIView):
         safe['shelter'] = {"population":country_population,
                          "capacity":people_capacity,
                          "rate":capacity_rate}
-        
-        url = 'http://api.seoulhackathon.kr/inquiry/U2VvdWxIYWNrYXRob24yMDIy/47/1?inqDt=20220808'
-        data = requests.get(url).json()
-        print(data)
         
         return Response(safe, status=status.HTTP_200_OK)
         
@@ -160,7 +156,7 @@ class GetDisableCallTaxi(APIView):
         
         for i in range(datalen):
             receipt_set_tmp = datetime.datetime.strptime(dataset[i]['settime'][14:], "%H:%M:%S") - datetime.datetime.strptime(dataset[i]['receipttime'][14:], "%H:%M:%S")
-            if 0 < round(receipt_set_tmp.seconds/60)%720 < 6:
+            if 0 <= round(receipt_set_tmp.seconds/60)%720 < 6:
                 receipt_set['0~5'] += 1
             elif 5 < round(receipt_set_tmp.seconds/60)%720 < 11:
                 receipt_set['6~10'] += 1
@@ -180,7 +176,7 @@ class GetDisableCallTaxi(APIView):
                 receipt_set['이상'] += 1
                 
             set_ride_tmp = datetime.datetime.strptime(dataset[i]['ridetime'][14:], "%H:%M:%S") - datetime.datetime.strptime(dataset[i]['settime'][14:], "%H:%M:%S")
-            if 0 < round(set_ride_tmp.seconds/60)%720 < 6:
+            if 0 <= round(set_ride_tmp.seconds/60)%720 < 6:
                 set_ride['0~5'] += 1
             elif 5 < round(set_ride_tmp.seconds/60)%720 < 11:
                 set_ride['6~10'] += 1
@@ -200,7 +196,7 @@ class GetDisableCallTaxi(APIView):
                 set_ride['이상'] += 1
                 
             receipt_ride_tmp = datetime.datetime.strptime(dataset[i]['ridetime'][14:], "%H:%M:%S") - datetime.datetime.strptime(dataset[i]['receipttime'][14:], "%H:%M:%S")
-            if 0 < round(receipt_ride_tmp.seconds/60)%720 < 6:
+            if 0 <= round(receipt_ride_tmp.seconds/60)%720 < 6:
                 receipt_ride['0~5'] += 1
             elif 5 < round(receipt_ride_tmp.seconds/60)%720 < 11:
                 receipt_ride['6~10'] += 1

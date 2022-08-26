@@ -9,5 +9,6 @@ class Profile(models.Model):
     age = models.IntegerField()
     region = models.CharField(max_length=10)
     gender = models.CharField(max_length=10)
-
+    def __str__(self):
+        return self.nickname
 

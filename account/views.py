@@ -62,3 +62,16 @@ class SignInView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         token = serializer.validated_data
         return Response({"token": token.key}, status=status.HTTP_200_OK)
+    
+
+class MyPageView(APIView):
+    
+    def get(self, request):
+        profile = Profile.objects.get(user=self.request.user)
+        email = request.user.email
+        nickname = profile.nickname
+        gender = profile.gender
+        region = profile.region
+        
+        
+        return Response({'email':email, 'nickname':nickname, 'gender':gender, 'region':region}, status=status.HTTP_200_OK)

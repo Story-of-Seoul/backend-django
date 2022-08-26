@@ -7,7 +7,7 @@ from .models import Board, Comment
 @admin.register(Board)
 class BoardAdmin(admin.ModelAdmin):
     list_filter = ['board_type']
-    list_display = ['board_type', 'title', 'author', 'created_at']
+    list_display = ['title', 'board_type', 'author', 'created_at']
     
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):

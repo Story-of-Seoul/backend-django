@@ -229,45 +229,48 @@ class GetEnvironment(APIView):
         Temperature_y_field = [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
         Dust_y_field = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
         
-        for country in countries:
-            TmpList = []
-            for y in Temperature_y_field:
-                tmp = seoul_temperature.objects.filter(date__year = y, area = country).aggregate(Avg('temperature'))['temperature__avg']
-                if tmp is not None:
-                    TmpList.append(round(float(tmp),2))
-                else:
-                    TmpList.append(None)
-            TemperatureYear[country] = TmpList       
+        # for country in countries:
+        #     TmpList = []
+        #     for y in Temperature_y_field:
+        #         tmp = seoul_temperature.objects.filter(date__year = y, area = country).aggregate(Avg('temperature'))['temperature__avg']
+        #         TmpList.append(round(tmp,2))
+        #     TemperatureYear[country] = TmpList       
 
                 
         for country in countries:
             TmpList = []
             TmpList2 = []
+            TmpList3 = []
+            dataset1 = seoul_temperature.objects.filter(area = country)
+            dataset2 = seoul_dust.objects.filter(area = country)
             for y in Dust_y_field:
-                tmp = round(seoul_dust.objects.filter(date__year = y, area = country).aggregate(Avg('fine_dust'))['fine_dust__avg'],2)
+                temperature_dataset = dataset1.filter(date__year = y)
+                dust_dataset = dataset2.filter(date__year = y)
+                tmp = round(dust_dataset.aggregate(Avg('fine_dust'))['fine_dust__avg'],2)
                 TmpList.append(tmp)
-                tmp = round(seoul_dust.objects.filter(date__year = y, area = country).aggregate(Avg('ultra_fine_dust'))['ultra_fine_dust__avg'],2)
+                tmp = round(dust_dataset.aggregate(Avg('ultra_fine_dust'))['ultra_fine_dust__avg'],2)
                 TmpList2.append(tmp)
+                tmp = temperature_dataset.aggregate(Avg('temperature'))['temperature__avg']
+                TmpList3.append(round(tmp,2))
             Dust_year_FineDust[country] = TmpList
             Dust_year_UltraFineDust[country] = TmpList2
+            TemperatureYear[country] = TmpList3[10:]
             
             TmpList = []
             TmpList2 = []
             TmpList3 = []
             for m in m_field:
-                tmp = round(seoul_dust.objects.filter(date__month = m, area = country).aggregate(Avg('fine_dust'))['fine_dust__avg'],2)
+                temperature_dataset = dataset1.filter(date__month = m)
+                dust_dataset = dataset2.filter(date__month = m)
+                tmp = round(dust_dataset.aggregate(Avg('fine_dust'))['fine_dust__avg'],2)
                 TmpList.append(tmp)
-                tmp = round(seoul_dust.objects.filter(date__month = m, area = country).aggregate(Avg('ultra_fine_dust'))['ultra_fine_dust__avg'],2)
+                tmp = round(dust_dataset.aggregate(Avg('ultra_fine_dust'))['ultra_fine_dust__avg'],2)
                 TmpList2.append(tmp)
-                tmp = seoul_temperature.objects.filter(date__month = m, area = country).aggregate(Avg('temperature'))['temperature__avg']
-                if tmp is not None:
-                    TmpList3.append(round(float(tmp),2))
-                else:
-                    TmpList3.append(None)
+                tmp = temperature_dataset.aggregate(Avg('temperature'))['temperature__avg']
+                TmpList3.append(round(tmp,2))
             Dust_month_FineDust[country] = TmpList
             Dust_month_UltraFineDust[country] = TmpList2    
             TemperatureMonth[country] = TmpList3                
-        
         
         Environment['Temperature'] = {'연도':TemperatureYear, '월':TemperatureMonth}
         Environment['Dust'] = {'연도':{'FineDust':Dust_year_FineDust, 'UltraFineDust':Dust_month_FineDust},
